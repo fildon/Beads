@@ -24,7 +24,7 @@ export const MainPage = () => (
     </header>
     <section>
       <article>
-        <Board state={testState} />
+        <Board />
       </article>
     </section>
   </>
