@@ -1,5 +1,19 @@
 import React from "react";
 import styles from "./mainPage.module.css";
+import { Board } from "./Board";
+
+const testState: State = {
+  nextToMove: "🔴",
+  phase: "▶",
+  board: [
+    ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+    ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+    ["⚫", "⚫", "⚫", "🔴", "⚫", "⚫", "⚫"],
+    ["⚫", "⚫", "⚫", "🟡", "⚫", "⚫", "⚫"],
+    ["⚫", "⚫", "⚫", "🟡", "⚫", "⚫", "⚫"],
+    ["🔴", "🔴", "🔴", "🟡", "⚫", "⚫", "⚫"],
+  ],
+};
 
 export const MainPage = () => (
   <>
@@ -9,8 +23,9 @@ export const MainPage = () => (
       </div>
     </header>
     <section>
-      <h2>Header</h2>
-      <article>hello world</article>
+      <article>
+        <Board state={testState} />
+      </article>
     </section>
   </>
 );
