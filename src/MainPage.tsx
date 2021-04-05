@@ -1,11 +1,11 @@
 import React from "react";
-import { banner, bannerContent } from "./mainPage.module.css";
+import styles from "./mainPage.module.css";
 
 export const MainPage = () => (
   <>
-    <header className={banner}>
-      <div className={bannerContent}>
-        <h1>🔴Connect4🔵</h1>
+    <header className={styles.banner}>
+      <div className={styles.bannerContent}>
+        <h1>🔴Connect4️⃣🟡</h1>
       </div>
     </header>
     <section>

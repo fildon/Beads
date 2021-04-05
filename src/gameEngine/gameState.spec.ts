@@ -1,20 +1,32 @@
-import { GameState } from "./gameState";
+import { playMove, startingState } from "./gameState";
 
 describe("GameState", () => {
-  it("empty board is inprogress with RED to play", () => {
-    const game = new GameState();
-
-    expect(game.phase).toEqual("INPROGRESS");
-    expect(game.nextToMove).toEqual("RED");
+  it("startingState is inprogress with RED to play", () => {
+    expect(startingState.phase).toEqual("▶");
+    expect(startingState.nextToMove).toEqual("🔴");
   });
 
-  it.todo("detects a tie");
-  it.todo("detects a red horizontal win");
-  it.todo("detects a red vertical win");
-  it.todo("detects a red diagonal win");
-  it.todo("detects a yellow horizontal win");
-  it.todo("detects a yellow vertical win");
-  it.todo("detects a yellow diagonal win");
-  it.todo("rejects a move in a full column");
-  it.todo("rejects a move after a completed game");
+  it("changes nextToMove after a move", () => {
+    expect(startingState.nextToMove).toEqual("🔴");
+    expect(playMove(startingState, 3).nextToMove).toEqual("🟡");
+  });
+
+  it("detects a red horizontal win", () => {
+    const nearlyRedWin: State = {
+      nextToMove: "🔴",
+      phase: "▶",
+      board: [
+        ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+        ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+        ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+        ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+        ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
+        ["🔴", "🔴", "🔴", "⚫", "🟡", "🟡", "🟡"],
+      ],
+    };
+
+    const redHasFourInARow = playMove(nearlyRedWin, 3);
+
+    expect(redHasFourInARow.phase).toEqual("🔴");
+  });
 });
