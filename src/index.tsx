@@ -1,4 +1,5 @@
 import React from "react";
 import { render } from "react-dom";
+import { MainPage } from "./MainPage";
 
-render(<h1>Hello World</h1>, document.getElementById("root"));
+render(<MainPage />, document.getElementById("root"));
