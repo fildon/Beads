@@ -4,7 +4,7 @@ export const isThisMoveAWin = (
   player: Player
 ): boolean => {
   const isThisMoveAWinOnAxis = (axis: Cell[]): boolean =>
-    ({ "🔴": /🔴🔴🔴🔴/, "🟡": /🟡🟡🟡🟡/ }[player].test(axis.join("")));
+    axis.join("").includes(new Array(4).fill(player).join(""));
   return [
     board[move.row], // horizontal axis
     board.map((row) => row[move.col]), // vertical axis
