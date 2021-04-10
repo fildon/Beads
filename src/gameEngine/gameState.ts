@@ -17,9 +17,6 @@ const isTheBoardFull = (board: Board): boolean =>
   board.every((row) => row.every((cell) => cell !== "⚫"));
 
 export const playMove = (priorState: State, targetCol: ColumnIndex): State => {
-  // TODO reject a move in a won game
-  // TODO reject a move in a tied game
-
   if (priorState.board[0][targetCol] !== "⚫") {
     // This column is full already
     throw new Error("Can't play move into a full column");

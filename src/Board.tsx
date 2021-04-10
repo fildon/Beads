@@ -32,7 +32,10 @@ export const Board = (): JSX.Element => {
           <tr>
             {columnIndices.map((col, i) => (
               <th key={i}>
-                <button disabled={state.phase !== "▶"} onClick={onClick(col)}>
+                <button
+                  disabled={state.phase !== "▶" || state.board[0][col] !== "⚫"}
+                  onClick={onClick(col)}
+                >
                   {col}
                 </button>
               </th>
