@@ -5,25 +5,26 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
   return allMoves.filter((col) => board[0][col] === "⚫");
 };
 
+// TODO memoize?
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
-  recursiveLimit: number
+  recursiveLimit = 6
 ): number => {
   if (state.phase === "⏹") {
-    // A tie is worth half a win
-    return 0.5;
+    // A tie is worth nothing!
+    return 0;
   }
 
   if (["🔴", "🟡"].includes(state.phase)) {
     // This state is a win or a loss
-    return state.phase === player ? 1 : 0;
+    return state.phase === player ? 1 : -1;
   }
 
   if (recursiveLimit === 0) {
     // TODO a smarter heuristic?
     // We've hit our recursion limit so let's just return a guess
-    return 0.5 + 0.1 * Math.random();
+    return 0.1 * Math.random();
   }
 
   // This state is not finished, and we haven't hit our recursion depth yet
@@ -41,25 +42,6 @@ export const evaluateStateForPlayer = (
   );
 };
 
-const evaluateStateMemo: Record<string, number> = {};
-
-const memoEvaluateStateForPlayer = (
-  state: State,
-  player: Player,
-  recursiveLimit = 6
-) => {
-  const memoKey = state.board.map((row) => row.join("")).join("") + player;
-  if (!evaluateStateMemo[memoKey]) {
-    evaluateStateMemo[memoKey] = evaluateStateForPlayer(
-      state,
-      player,
-      recursiveLimit
-    );
-  }
-
-  return evaluateStateMemo[memoKey];
-};
-
 export const pickBestMove = (state: State): ColumnIndex => {
   // Get the set of all legal moves
   const legalMoves = getLegalMoves(state.board);
@@ -67,10 +49,7 @@ export const pickBestMove = (state: State): ColumnIndex => {
   const bestMove = legalMoves
     .map((move) => ({
       move,
-      value: memoEvaluateStateForPlayer(
-        playMove(state, move),
-        state.nextToMove
-      ),
+      value: evaluateStateForPlayer(playMove(state, move), state.nextToMove),
     }))
     // Descending sort by value, then pick first
     .sort((a, b) => b.value - a.value)[0].move;

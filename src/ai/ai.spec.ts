@@ -32,7 +32,7 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡", 0)).toEqual(0);
+    expect(evaluateStateForPlayer(state, "🟡", 0)).toEqual(-1);
   });
 
   it("recognises a next move win", () => {
@@ -66,6 +66,6 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡", 1)).toEqual(0);
+    expect(evaluateStateForPlayer(state, "🟡", 1)).toEqual(-1);
   });
 });
