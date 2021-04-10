@@ -8,7 +8,7 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
-  recursiveLimit = 5
+  recursiveLimit: number
 ): number => {
   if (state.phase === "⏹") {
     // A tie is worth half a win
@@ -21,26 +21,43 @@ export const evaluateStateForPlayer = (
   }
 
   if (recursiveLimit === 0) {
+    // TODO a smarter heuristic?
     // We've hit our recursion limit so let's just return a guess
     return 0.5 + 0.1 * Math.random();
   }
 
-  if (state.phase === "▶") {
-    // This state is not finished, and we haven't hit our recursion depth yet
-    const legalMoves = getLegalMoves(state.board);
-    return (
-      legalMoves
-        .map((move) =>
-          evaluateStateForPlayer(
-            playMove(state, move),
-            player,
-            recursiveLimit - 1
-          )
+  // This state is not finished, and we haven't hit our recursion depth yet
+  return (
+    getLegalMoves(state.board)
+      .map((move) =>
+        evaluateStateForPlayer(
+          playMove(state, move),
+          player,
+          recursiveLimit - 1
         )
-        // Change sort ordering based on the next player (minimiser or maximiser)
-        .sort((a, b) => (state.nextToMove === player ? b - a : a - b))[0]
+      )
+      // Change sort ordering based on the next player (minimiser or maximiser)
+      .sort((a, b) => (state.nextToMove === player ? b - a : a - b))[0]
+  );
+};
+
+const evaluateStateMemo: Record<string, number> = {};
+
+const memoEvaluateStateForPlayer = (
+  state: State,
+  player: Player,
+  recursiveLimit = 6
+) => {
+  const memoKey = state.board.map((row) => row.join("")).join("") + player;
+  if (!evaluateStateMemo[memoKey]) {
+    evaluateStateMemo[memoKey] = evaluateStateForPlayer(
+      state,
+      player,
+      recursiveLimit
     );
   }
+
+  return evaluateStateMemo[memoKey];
 };
 
 export const pickBestMove = (state: State): ColumnIndex => {
@@ -50,7 +67,10 @@ export const pickBestMove = (state: State): ColumnIndex => {
   const bestMove = legalMoves
     .map((move) => ({
       move,
-      value: evaluateStateForPlayer(playMove(state, move), state.nextToMove),
+      value: memoEvaluateStateForPlayer(
+        playMove(state, move),
+        state.nextToMove
+      ),
     }))
     // Descending sort by value, then pick first
     .sort((a, b) => b.value - a.value)[0].move;

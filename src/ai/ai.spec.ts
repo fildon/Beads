@@ -15,7 +15,7 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🔴")).toEqual(1);
+    expect(evaluateStateForPlayer(state, "🔴", 0)).toEqual(1);
   });
 
   it("recognises an immediate loss", () => {
@@ -32,7 +32,7 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡")).toEqual(0);
+    expect(evaluateStateForPlayer(state, "🟡", 0)).toEqual(0);
   });
 
   it("recognises a next move win", () => {
@@ -49,7 +49,7 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🔴")).toEqual(1);
+    expect(evaluateStateForPlayer(state, "🔴", 1)).toEqual(1);
   });
 
   it("recognises a next move loss", () => {
@@ -66,6 +66,6 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡")).toEqual(0);
+    expect(evaluateStateForPlayer(state, "🟡", 1)).toEqual(0);
   });
 });
