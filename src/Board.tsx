@@ -13,8 +13,7 @@ const getDisplayMessage = (state: State): string => {
   return `${state.phase} has won!`;
 };
 
-const columnIndices: ColumnIndex[] = [0, 1, 2, 3, 4, 5, 6];
-export const Board = (): JSX.Element => {
+const useBoard = () => {
   const [state, setState] = React.useState(startingState);
   const onClick = React.useCallback(
     (col: ColumnIndex) => () => {
@@ -24,16 +23,31 @@ export const Board = (): JSX.Element => {
     [state]
   );
 
+  const reset = React.useCallback(() => setState(startingState), []);
+
+  return {
+    board: state.board,
+    displayMessage: getDisplayMessage(state),
+    onClick,
+    phase: state.phase,
+    reset,
+  };
+};
+
+const columnIndices: ColumnIndex[] = [0, 1, 2, 3, 4, 5, 6];
+export const Board = (): JSX.Element => {
+  const { board, displayMessage, onClick, phase, reset } = useBoard();
+
   return (
     <>
-      <h2>{getDisplayMessage(state)}</h2>
+      <h2>{displayMessage}</h2>
       <table>
         <thead>
           <tr>
             {columnIndices.map((col, i) => (
               <th key={i}>
                 <button
-                  disabled={state.phase !== "▶" || state.board[0][col] !== "⚫"}
+                  disabled={phase !== "▶" || board[0][col] !== "⚫"}
                   onClick={onClick(col)}
                 >
                   {col}
@@ -43,7 +57,7 @@ export const Board = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          {state.board.map((row, i) => (
+          {board.map((row, i) => (
             <tr key={i}>
               {row.map((cell, j) => (
                 <td key={j}>{cell}</td>
@@ -52,7 +66,7 @@ export const Board = (): JSX.Element => {
           ))}
         </tbody>
       </table>
-      <button onClick={() => setState(startingState)}>New game?</button>
+      <button onClick={reset}>New game?</button>
     </>
   );
 };
