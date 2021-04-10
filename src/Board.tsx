@@ -1,4 +1,5 @@
 import React from "react";
+import { pickBestMove } from "./ai/ai";
 import { playMove, startingState } from "./gameEngine/gameState";
 
 const getDisplayMessage = (state: State): string => {
@@ -24,23 +25,32 @@ const useBoard = () => {
   );
 
   const reset = React.useCallback(() => setState(startingState), []);
+  const displayMessage = getDisplayMessage(state);
 
   return {
-    board: state.board,
-    displayMessage: getDisplayMessage(state),
+    displayMessage,
     onClick,
-    phase: state.phase,
     reset,
+    state,
   };
 };
 
 const columnIndices: ColumnIndex[] = [0, 1, 2, 3, 4, 5, 6];
 export const Board = (): JSX.Element => {
-  const { board, displayMessage, onClick, phase, reset } = useBoard();
+  const { displayMessage, onClick, reset, state } = useBoard();
+  const { board, phase } = state;
+
+  const makeBotMove = () => {
+    const bestMove = pickBestMove(state);
+    onClick(bestMove)(); // TODO clean this up
+  };
 
   return (
     <>
       <h2>{displayMessage}</h2>
+      <button disabled={phase !== "▶"} onClick={makeBotMove}>
+        Let the bot decide
+      </button>
       <table>
         <thead>
           <tr>

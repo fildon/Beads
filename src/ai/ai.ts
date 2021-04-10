@@ -8,7 +8,7 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
-  recursiveLimit = 1
+  recursiveLimit = 5
 ): number => {
   if (state.phase === "⏹") {
     // A tie is worth half a win
@@ -22,7 +22,7 @@ export const evaluateStateForPlayer = (
 
   if (recursiveLimit === 0) {
     // We've hit our recursion limit so let's just return a guess
-    return 0.5;
+    return 0.5 + 0.1 * Math.random();
   }
 
   if (state.phase === "▶") {
@@ -43,14 +43,14 @@ export const evaluateStateForPlayer = (
   }
 };
 
-export const pickBestMove = (state: State, player: Player): ColumnIndex => {
+export const pickBestMove = (state: State): ColumnIndex => {
   // Get the set of all legal moves
   const legalMoves = getLegalMoves(state.board);
   // Evaluate the state each move would yield
   const bestMove = legalMoves
     .map((move) => ({
       move,
-      value: evaluateStateForPlayer(playMove(state, move), player),
+      value: evaluateStateForPlayer(playMove(state, move), state.nextToMove),
     }))
     // Descending sort by value, then pick first
     .sort((a, b) => b.value - a.value)[0].move;
