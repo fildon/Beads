@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./mainPage.module.css";
+import * as styles from "./mainPage.module.css";
 import { Board } from "./Board";
 
 const testState: State = {
