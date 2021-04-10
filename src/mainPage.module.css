@@ -68,7 +68,14 @@ article {
   margin: 2em 0;
 }
 
-table, th, td {
+table,
+th,
+td {
   border: 1px solid black;
+  margin: 1em auto;
+}
+
+button {
+  display: block;
   margin: 0 auto;
 }

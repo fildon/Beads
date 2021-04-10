@@ -52,6 +52,7 @@ export const Board = (): JSX.Element => {
           ))}
         </tbody>
       </table>
+      <button onClick={() => setState(startingState)}>New game?</button>
     </>
   );
 };
