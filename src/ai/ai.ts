@@ -46,7 +46,7 @@ const memoedEvaluations: Record<string, EvaluatedState> = {};
 const memoEvaluateStateForPlayer = (
   state: State,
   player: Player,
-  recursiveLimit = 6
+  recursiveLimit = 5
 ) => {
   const memoKey = state.board.map((row) => row.join("")).join("") + player;
   if (memoedEvaluations[memoKey]) {
