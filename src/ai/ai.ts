@@ -62,7 +62,6 @@ const memoEvaluateStateForPlayer = (
   return realEvaluation;
 };
 
-// TODO memoize... but note that the recursiveLimit needs to be taken into account for memoization
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
