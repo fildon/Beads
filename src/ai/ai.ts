@@ -71,15 +71,6 @@ export const pickBestMove = (state: State): ColumnIndex => {
         timeToEndSorter(a.evaluation, b.evaluation)
     );
 
-  // console.log(
-  //   rankedMoves
-  //     .map(
-  //       (move) =>
-  //         `${move.move}: ${move.evaluation.value} in ${move.evaluation.timeToEnd}`
-  //     )
-  //     .join("\n")
-  // );
-
   // pick randomly from equal best
   const bestMove = rankedMoves[0];
   const equalBestMoves = rankedMoves
@@ -92,8 +83,6 @@ export const pickBestMove = (state: State): ColumnIndex => {
 
   const randomBestMove =
     equalBestMoves[Math.floor(Math.random() * equalBestMoves.length)];
-
-  console.log(`chose: ${randomBestMove}`);
 
   return randomBestMove;
 };
