@@ -7,10 +7,10 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
 
 type EvaluatedState = {
   value: number;
-  timeToEnd?: number;
+  timeToEnd: number;
 };
 
-// TODO memoize?
+// TODO memoize... but note that the recursiveLimit needs to be taken into account for memoization
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
@@ -29,7 +29,7 @@ export const evaluateStateForPlayer = (
   if (recursiveLimit === 0) {
     // TODO a smarter heuristic?
     // We've hit our recursion limit so let's just return a guess
-    return { value: 0.1 * Math.random() };
+    return { value: 0, timeToEnd: Infinity };
   }
 
   // Maximises result on our turn, but minimises it on opponent's turn
@@ -40,12 +40,10 @@ export const evaluateStateForPlayer = (
     .map((move) =>
       evaluateStateForPlayer(playMove(state, move), player, recursiveLimit - 1)
     )
-    .sort((a, b) => minMaxValueSorter(a, b));
+    .sort((a, b) => minMaxValueSorter(a, b) || a.timeToEnd - b.timeToEnd);
 
   const bestFutureState = rankedFutureStates[0];
-  if (bestFutureState.timeToEnd === undefined) {
-    return bestFutureState;
-  }
+
   return { ...bestFutureState, timeToEnd: bestFutureState.timeToEnd + 1 };
 };
 
@@ -73,6 +71,15 @@ export const pickBestMove = (state: State): ColumnIndex => {
         timeToEndSorter(a.evaluation, b.evaluation)
     );
 
+  // console.log(
+  //   rankedMoves
+  //     .map(
+  //       (move) =>
+  //         `${move.move}: ${move.evaluation.value} in ${move.evaluation.timeToEnd}`
+  //     )
+  //     .join("\n")
+  // );
+
   // pick randomly from equal best
   const bestMove = rankedMoves[0];
   const equalBestMoves = rankedMoves
@@ -85,6 +92,8 @@ export const pickBestMove = (state: State): ColumnIndex => {
 
   const randomBestMove =
     equalBestMoves[Math.floor(Math.random() * equalBestMoves.length)];
+
+  console.log(`chose: ${randomBestMove}`);
 
   return randomBestMove;
 };
