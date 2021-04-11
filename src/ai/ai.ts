@@ -11,6 +11,36 @@ type EvaluatedState = {
   certain: boolean;
 };
 
+// A map of the board with each cell displaying how many wins could pass through it
+const valueMap = [
+  [3, 4, 5, 7, 5, 4, 3],
+  [4, 6, 8, 10, 8, 6, 4],
+  [5, 8, 11, 13, 11, 8, 5],
+  [5, 8, 11, 13, 11, 8, 5],
+  [4, 6, 8, 10, 8, 6, 4],
+  [3, 4, 5, 7, 5, 4, 3],
+];
+
+const heuristicEvaluation = (state: State, player: Player): EvaluatedState => {
+  let ourValue = 0;
+  let enemyValue = 0;
+  state.board.forEach((row, rIndex) =>
+    row.forEach((cell, cIndex) => {
+      if (cell === "⚫") {
+        return;
+      }
+      const valueHere = valueMap[rIndex][cIndex] - 3 + 6 * Math.random(); // Add some fuzzing
+      if (cell === player) {
+        ourValue += valueHere;
+      } else {
+        enemyValue += valueHere;
+      }
+    })
+  );
+  const heuristicValue = (ourValue - enemyValue) / (ourValue + enemyValue);
+  return { value: heuristicValue, timeToEnd: Infinity, certain: false };
+};
+
 const memoedEvaluations: Record<string, EvaluatedState> = {};
 
 const memoEvaluateStateForPlayer = (
@@ -53,9 +83,7 @@ export const evaluateStateForPlayer = (
   }
 
   if (recursiveLimit === 0) {
-    // TODO a smarter heuristic?
-    // We've hit our recursion limit so let's just return a guess
-    return { value: 0, timeToEnd: Infinity, certain: false };
+    return heuristicEvaluation(state, player);
   }
 
   // Maximises result on our turn, but minimises it on opponent's turn
