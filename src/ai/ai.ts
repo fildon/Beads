@@ -5,54 +5,86 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
   return allMoves.filter((col) => board[0][col] === "⚫");
 };
 
+type EvaluatedState = {
+  value: number;
+  timeToEnd?: number;
+};
+
 // TODO memoize?
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
   recursiveLimit = 6
-): number => {
+): EvaluatedState => {
   if (state.phase === "⏹") {
     // A tie is worth nothing!
-    return 0;
+    return { value: 0, timeToEnd: 0 };
   }
 
   if (["🔴", "🟡"].includes(state.phase)) {
     // This state is a win or a loss
-    return state.phase === player ? 1 : -1;
+    return { value: state.phase === player ? 1 : -1, timeToEnd: 0 };
   }
 
   if (recursiveLimit === 0) {
     // TODO a smarter heuristic?
     // We've hit our recursion limit so let's just return a guess
-    return 0.1 * Math.random();
+    return { value: 0.1 * Math.random() };
   }
 
-  // This state is not finished, and we haven't hit our recursion depth yet
-  return (
-    getLegalMoves(state.board)
-      .map((move) =>
-        evaluateStateForPlayer(
-          playMove(state, move),
-          player,
-          recursiveLimit - 1
-        )
-      )
-      // Change sort ordering based on the next player (minimiser or maximiser)
-      .sort((a, b) => (state.nextToMove === player ? b - a : a - b))[0]
-  );
+  // Maximises result on our turn, but minimises it on opponent's turn
+  const minMaxValueSorter = (a: EvaluatedState, b: EvaluatedState) =>
+    state.nextToMove === player ? b.value - a.value : a.value - b.value;
+
+  const rankedFutureStates = getLegalMoves(state.board)
+    .map((move) =>
+      evaluateStateForPlayer(playMove(state, move), player, recursiveLimit - 1)
+    )
+    .sort((a, b) => minMaxValueSorter(a, b));
+
+  const bestFutureState = rankedFutureStates[0];
+  if (bestFutureState.timeToEnd === undefined) {
+    return bestFutureState;
+  }
+  return { ...bestFutureState, timeToEnd: bestFutureState.timeToEnd + 1 };
 };
+
+// tie break sorting function only to be used when a.value === b.value
+const timeToEndSorter = (a: EvaluatedState, b: EvaluatedState) =>
+  // we want to rush wins and delay losses
+  a.value > 0 ? a.timeToEnd - b.timeToEnd : b.timeToEnd - a.timeToEnd;
 
 export const pickBestMove = (state: State): ColumnIndex => {
   // Get the set of all legal moves
   const legalMoves = getLegalMoves(state.board);
   // Evaluate the state each move would yield
-  const bestMove = legalMoves
+  const rankedMoves = legalMoves
     .map((move) => ({
       move,
-      value: evaluateStateForPlayer(playMove(state, move), state.nextToMove),
+      evaluation: evaluateStateForPlayer(
+        playMove(state, move),
+        state.nextToMove
+      ),
     }))
-    // Descending sort by value, then pick first
-    .sort((a, b) => b.value - a.value)[0].move;
+    // Descending sort by value, with timeToEnd tiebreaker
+    .sort(
+      (a, b) =>
+        b.evaluation.value - a.evaluation.value ||
+        timeToEndSorter(a.evaluation, b.evaluation)
+    );
 
-  return bestMove;
+  // pick randomly from equal best
+  const bestMove = rankedMoves[0];
+  const equalBestMoves = rankedMoves
+    .filter(
+      ({ evaluation }) =>
+        evaluation.value === bestMove.evaluation.value &&
+        evaluation.timeToEnd === bestMove.evaluation.timeToEnd
+    )
+    .map(({ move }) => move);
+
+  const randomBestMove =
+    equalBestMoves[Math.floor(Math.random() * equalBestMoves.length)];
+
+  return randomBestMove;
 };
