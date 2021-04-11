@@ -15,9 +15,10 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🔴")).toEqual({
+    expect(evaluateStateForPlayer(state, "🔴", 6)).toEqual({
       value: 1,
       timeToEnd: 0,
+      certain: true,
     });
   });
 
@@ -35,9 +36,10 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡")).toEqual({
+    expect(evaluateStateForPlayer(state, "🟡", 6)).toEqual({
       value: -1,
       timeToEnd: 0,
+      certain: true,
     });
   });
 
@@ -55,9 +57,10 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🔴")).toEqual({
+    expect(evaluateStateForPlayer(state, "🔴", 6)).toEqual({
       value: 1,
       timeToEnd: 1,
+      certain: true,
     });
   });
 
@@ -75,9 +78,10 @@ describe("AI", () => {
       ],
     };
 
-    expect(evaluateStateForPlayer(state, "🟡")).toEqual({
+    expect(evaluateStateForPlayer(state, "🟡", 6)).toEqual({
       value: -1,
       timeToEnd: 1,
+      certain: true,
     });
   });
 });

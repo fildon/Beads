@@ -8,28 +8,54 @@ const getLegalMoves = (board: Board): ColumnIndex[] => {
 type EvaluatedState = {
   value: number;
   timeToEnd: number;
+  certain: boolean;
+};
+
+const memoedEvaluations: Record<string, EvaluatedState> = {};
+
+const memoEvaluateStateForPlayer = (
+  state: State,
+  player: Player,
+  recursiveLimit = 6
+) => {
+  const memoKey = state.board.map((row) => row.join("")).join("") + player;
+  if (memoedEvaluations[memoKey]) {
+    return memoedEvaluations[memoKey];
+  }
+
+  const realEvaluation = evaluateStateForPlayer(state, player, recursiveLimit);
+
+  if (realEvaluation.certain) {
+    memoedEvaluations[memoKey] = realEvaluation;
+  }
+
+  return realEvaluation;
 };
 
 // TODO memoize... but note that the recursiveLimit needs to be taken into account for memoization
 export const evaluateStateForPlayer = (
   state: State,
   player: Player,
-  recursiveLimit = 6
+  recursiveLimit: number
 ): EvaluatedState => {
   if (state.phase === "⏹") {
     // A tie is worth nothing!
-    return { value: 0, timeToEnd: 0 };
+    return { value: 0, timeToEnd: 0, certain: true };
   }
 
   if (["🔴", "🟡"].includes(state.phase)) {
     // This state is a win or a loss
-    return { value: state.phase === player ? 1 : -1, timeToEnd: 0 };
+    return {
+      value: state.phase === player ? 1 : -1,
+      timeToEnd: 0,
+      certain: true,
+    };
   }
 
   if (recursiveLimit === 0) {
     // TODO a smarter heuristic?
     // We've hit our recursion limit so let's just return a guess
-    return { value: 0, timeToEnd: Infinity };
+    return { value: 0, timeToEnd: Infinity, certain: false };
   }
 
   // Maximises result on our turn, but minimises it on opponent's turn
@@ -38,13 +64,21 @@ export const evaluateStateForPlayer = (
 
   const rankedFutureStates = getLegalMoves(state.board)
     .map((move) =>
-      evaluateStateForPlayer(playMove(state, move), player, recursiveLimit - 1)
+      memoEvaluateStateForPlayer(
+        playMove(state, move),
+        player,
+        recursiveLimit - 1
+      )
     )
     .sort((a, b) => minMaxValueSorter(a, b) || a.timeToEnd - b.timeToEnd);
 
   const bestFutureState = rankedFutureStates[0];
 
-  return { ...bestFutureState, timeToEnd: bestFutureState.timeToEnd + 1 };
+  return {
+    value: bestFutureState.value,
+    timeToEnd: bestFutureState.timeToEnd + 1,
+    certain: bestFutureState.certain,
+  };
 };
 
 // tie break sorting function only to be used when a.value === b.value
@@ -59,7 +93,7 @@ export const pickBestMove = (state: State): ColumnIndex => {
   const rankedMoves = legalMoves
     .map((move) => ({
       move,
-      evaluation: evaluateStateForPlayer(
+      evaluation: memoEvaluateStateForPlayer(
         playMove(state, move),
         state.nextToMove
       ),
