@@ -43,6 +43,8 @@ const heuristicEvaluation = (state: State, player: Player): EvaluatedState => {
 
 const memoedEvaluations: Record<string, EvaluatedState> = {};
 
+console;
+
 const memoEvaluateStateForPlayer = (
   state: State,
   player: Player,
@@ -60,6 +62,22 @@ const memoEvaluateStateForPlayer = (
   }
 
   return realEvaluation;
+};
+
+// Maximises result on our turn, but minimises it on opponent's turn
+const minMaxValueComparator = (
+  a: EvaluatedState,
+  b: EvaluatedState,
+  maximise = true // should this sorter try to maximise or minimise the result
+) => {
+  const ascendingValueComparison = a.value - b.value;
+  const ascendingTimeComparison = a.timeToEnd - b.timeToEnd;
+
+  const valueSort = ascendingValueComparison * (maximise ? -1 : 1);
+  // Time sorter rushes wins for the maximiser but delays losses... both vice versa for the minimizer
+  const timeSort = ascendingTimeComparison * (maximise === a.value > 0 ? 1 : -1);
+
+  return valueSort || timeSort; // Primarily sort by value but tiebreak on time
 };
 
 export const evaluateStateForPlayer = (
@@ -85,10 +103,6 @@ export const evaluateStateForPlayer = (
     return heuristicEvaluation(state, player);
   }
 
-  // Maximises result on our turn, but minimises it on opponent's turn
-  const minMaxValueSorter = (a: EvaluatedState, b: EvaluatedState) =>
-    state.nextToMove === player ? b.value - a.value : a.value - b.value;
-
   const rankedFutureStates = getLegalMoves(state.board)
     .map((move) =>
       memoEvaluateStateForPlayer(
@@ -97,7 +111,7 @@ export const evaluateStateForPlayer = (
         recursiveLimit - 1
       )
     )
-    .sort((a, b) => minMaxValueSorter(a, b) || a.timeToEnd - b.timeToEnd);
+    .sort((a, b) => minMaxValueComparator(a, b, state.nextToMove === player));
 
   const bestFutureState = rankedFutureStates[0];
 
@@ -107,11 +121,6 @@ export const evaluateStateForPlayer = (
     certain: bestFutureState.certain,
   };
 };
-
-// tie break sorting function only to be used when a.value === b.value
-const timeToEndSorter = (a: EvaluatedState, b: EvaluatedState) =>
-  // we want to rush wins and delay losses
-  a.value > 0 ? a.timeToEnd - b.timeToEnd : b.timeToEnd - a.timeToEnd;
 
 export const pickBestMove = (state: State): ColumnIndex => {
   // Get the set of all legal moves
@@ -125,12 +134,7 @@ export const pickBestMove = (state: State): ColumnIndex => {
         state.nextToMove
       ),
     }))
-    // Descending sort by value, with timeToEnd tiebreaker
-    .sort(
-      (a, b) =>
-        b.evaluation.value - a.evaluation.value ||
-        timeToEndSorter(a.evaluation, b.evaluation)
-    );
+    .sort((a, b) => minMaxValueComparator(a.evaluation, b.evaluation));
 
   // pick randomly from equal best
   const bestMove = rankedMoves[0];
