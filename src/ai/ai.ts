@@ -68,16 +68,18 @@ const memoEvaluateStateForPlayer = (
 const minMaxValueComparator = (
   a: EvaluatedState,
   b: EvaluatedState,
-  maximise = true // should this sorter try to maximise or minimise the result
+  shouldMaximise = true // should this sorter try to maximise or minimise the result
 ) => {
-  const ascendingValueComparison = a.value - b.value;
-  const ascendingTimeComparison = a.timeToEnd - b.timeToEnd;
+  const valueComparison = b.value - a.value;
 
-  const valueSort = ascendingValueComparison * (maximise ? -1 : 1);
-  // Time sorter rushes wins for the maximiser but delays losses... both vice versa for the minimizer
-  const timeSort = ascendingTimeComparison * (maximise === a.value > 0 ? 1 : -1);
+  // Rush positive results but delay negative results
+  const timeComparison = (a.timeToEnd - b.timeToEnd) * (a.value > 0 ? 1 : -1);
 
-  return valueSort || timeSort; // Primarily sort by value but tiebreak on time
+  // Primarily compare by value, but tiebreak on time
+  const maximiserComparison = valueComparison || timeComparison;
+
+  // Invert result if we want the minimizer
+  return maximiserComparison * (shouldMaximise ? 1 : -1);
 };
 
 export const evaluateStateForPlayer = (
