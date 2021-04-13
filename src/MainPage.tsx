@@ -2,19 +2,6 @@ import React from "react";
 import * as styles from "./mainPage.module.css";
 import { Board } from "./Board";
 
-const testState: State = {
-  nextToMove: "🔴",
-  phase: "▶",
-  board: [
-    ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
-    ["⚫", "⚫", "⚫", "⚫", "⚫", "⚫", "⚫"],
-    ["⚫", "⚫", "⚫", "🔴", "⚫", "⚫", "⚫"],
-    ["⚫", "⚫", "⚫", "🟡", "⚫", "⚫", "⚫"],
-    ["⚫", "⚫", "⚫", "🟡", "⚫", "⚫", "⚫"],
-    ["🔴", "🔴", "🔴", "🟡", "⚫", "⚫", "⚫"],
-  ],
-};
-
 export const MainPage = () => (
   <>
     <header className={styles.banner}>
