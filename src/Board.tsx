@@ -16,8 +16,8 @@ const getDisplayMessage = (state: State): string => {
 
 const useBoard = () => {
   const [state, setState] = React.useState(startingState);
-  const onClick = React.useCallback(
-    (col: ColumnIndex) => () => {
+  const playInColumn = React.useCallback(
+    (col: ColumnIndex) => {
       const newState = playMove(state, col);
       setState(newState);
     },
@@ -29,7 +29,7 @@ const useBoard = () => {
 
   return {
     displayMessage,
-    onClick,
+    playInColumn,
     reset,
     state,
   };
@@ -37,12 +37,12 @@ const useBoard = () => {
 
 const columnIndices: ColumnIndex[] = [0, 1, 2, 3, 4, 5, 6];
 export const Board = (): JSX.Element => {
-  const { displayMessage, onClick, reset, state } = useBoard();
+  const { displayMessage, playInColumn, reset, state } = useBoard();
   const { board, phase } = state;
 
   const makeBotMove = () => {
     const bestMove = pickBestMove(state);
-    onClick(bestMove)(); // TODO clean this up
+    playInColumn(bestMove);
   };
 
   return (
@@ -58,7 +58,7 @@ export const Board = (): JSX.Element => {
               <th key={i}>
                 <button
                   disabled={phase !== "▶" || board[0][col] !== "⚫"}
-                  onClick={onClick(col)}
+                  onClick={() => playInColumn(col)}
                 >
                   {col}
                 </button>
