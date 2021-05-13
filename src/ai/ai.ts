@@ -43,8 +43,6 @@ const heuristicEvaluation = (state: State, player: Player): EvaluatedState => {
 
 const memoedEvaluations: Record<string, EvaluatedState> = {};
 
-console;
-
 const memoEvaluateStateForPlayer = (
   state: State,
   player: Player,
