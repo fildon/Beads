@@ -1,6 +1,6 @@
 import React from "react";
-import { pickBestMove } from "./ai/ai";
-import { playMove, startingState } from "./gameEngine/gameState";
+import { pickBestMove } from "../ai/ai";
+import { playMove, startingState } from "../gameEngine/gameState";
 
 const getDisplayMessage = (state: State): string => {
   if (state.phase === "⏹") {
@@ -36,7 +36,7 @@ const useBoard = () => {
 };
 
 const columnIndices: ColumnIndex[] = [0, 1, 2, 3, 4, 5, 6];
-export const Board = (): JSX.Element => {
+export const Board = () => {
   const { displayMessage, playInColumn, reset, state } = useBoard();
   const { board, phase } = state;
 

@@ -1,5 +1,7 @@
 import React from "react";
 import { render } from "react-dom";
-import { MainPage } from "./MainPage";
+import { MainPage } from "./components/MainPage";
 
-render(<MainPage />, document.getElementById("root"));
+document.addEventListener("DOMContentLoaded", () => {
+  render(<MainPage />, document.getElementById("root"));
+});

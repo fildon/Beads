@@ -23,10 +23,26 @@ export const playMove = (priorState: State, targetCol: ColumnIndex): State => {
   }
 
   const currentPlayer = priorState.nextToMove;
-  const targetRow = priorState.board
+
+  const targetCell = priorState.board
     .map((row, rowIndex) => ({ cell: row[targetCol], rowIndex }))
     .reverse()
-    .find(({ cell }) => cell === "⚫").rowIndex as RowIndex;
+    .find(({ cell }) => cell === "⚫");
+
+  if (!targetCell) {
+    /**
+     * .find could always return undefined if it can't match anything
+     * But we know from the previous if check that the top row is free
+     * Hence at least one free row exists. So this shouldn't be possible.
+     */
+    throw new Error(
+      `Unable to find empty cell in column: ${targetCol}, with state: ${JSON.stringify(
+        priorState
+      )}`
+    );
+  }
+
+  const targetRow = targetCell.rowIndex as RowIndex;
 
   // Clone the prior board
   const board = priorState.board.map((row) => [...row]) as Board;

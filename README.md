@@ -3,7 +3,10 @@
 A connect4 implementation
 
 ## Getting Started
-```bash
+
+```shell
 yarn install
-yarn start
+yarn build
 ```
+
+Then open dist/index.html in any browser
