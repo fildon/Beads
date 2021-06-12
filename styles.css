@@ -48,6 +48,22 @@ body {
   margin: 0 auto;
 }
 
+.animate-drop {
+  position: relative;
+  animation-duration: 1s;
+  animation-name: drop;
+}
+
+@keyframes drop {
+  from {
+    bottom: 40px;
+  }
+
+  to {
+    bottom: 0;
+  }
+}
+
 h1 {
   padding: 1em 0;
   font-size: 200%;
