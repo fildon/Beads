@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useReanimator } from "ceramic-components";
 import { pickBestMove } from "../ai/ai";
 import { playMove, startingState } from "../gameEngine/gameState";
 
@@ -39,21 +40,6 @@ const useBoard = () => {
     makeBotMove,
     state,
   };
-};
-
-const useReanimator = (deps: React.DependencyList) => {
-  const ref = React.createRef<HTMLElement>();
-  const element = ref.current;
-  React.useEffect(() => {
-    if (!element) {
-      return;
-    }
-    element.style.animation = "none";
-    element.offsetHeight;
-    element.style.animation = "";
-  }, [element, ...deps]);
-
-  return { ref };
 };
 
 const AnimatedCell = ({ children }: { children: Cell }) => {

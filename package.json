@@ -1,13 +1,13 @@
 {
   "name": "beads",
   "version": "1.0.0",
-  "description": "Connect4",
+  "description": "A little Connect4 web implementation",
   "main": "./dist/index.html",
   "scripts": {
-    "build:js": "esbuild src/index.tsx --bundle --minify --outfile=dist/index.js",
-    "copystaticfiles": "copyfiles -f src/staticFiles/* dist",
-    "build": "npm run build:js && npm run copystaticfiles",
-    "lint": "yarn eslint . --ext .ts --ext .tsx",
+    "prebuild": "rm -rf dist",
+    "build": "esbuild src/index.tsx --bundle --minify --outfile=dist/index.js",
+    "postbuild": "cp -R src/staticFiles/* dist",
+    "lint": "eslint . --ext .ts,.tsx",
     "test": "jest"
   },
   "repository": {
@@ -26,7 +26,7 @@
     "@types/react-dom": "^17.0.7",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
-    "copyfiles": "^2.4.1",
+    "ceramic-components": "^1.2.1",
     "esbuild": "^0.12.8",
     "eslint": "^7.28.0",
     "eslint-plugin-jest": "^24.3.6",
@@ -37,6 +37,5 @@
     "react-dom": "^17.0.2",
     "ts-jest": "^27.0.3",
     "typescript": "^4.3.2"
-  },
-  "dependencies": {}
+  }
 }
