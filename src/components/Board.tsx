@@ -19,6 +19,7 @@ const useBoard = () => {
   const [state, setState] = React.useState(startingState);
   const playInColumn = React.useCallback(
     (col: ColumnIndex) => {
+      if (state.phase !== "▶" || state.board[0][col] !== "⚫") return;
       const newState = playMove(state, col);
       setState(newState);
     },
@@ -47,20 +48,16 @@ const AnimatedCell = ({ children }: { children: Cell }) => {
 
   if (children === "⚫") {
     // We don't animate empty cells
-    return (
-      <td>
-        <span>⚫</span>
-      </td>
-    );
+    return <span>⚫</span>;
   }
 
   return (
-    <td style={{ position: "relative" }}>
+    <>
       <span style={{ position: "absolute" }}>⚫</span>
-      <span ref={reanimatorRef} className={"animate-drop"}>
+      <span ref={reanimatorRef} className="animate-drop">
         {children}
       </span>
-    </td>
+    </>
   );
 };
 
@@ -83,13 +80,13 @@ export const Board = () => {
       <table>
         <thead>
           <tr>
-            {columnIndices.map((col, i) => (
-              <th key={i}>
+            {columnIndices.map((col) => (
+              <th key={col}>
                 <button
                   disabled={phase !== "▶" || board[0][col] !== "⚫"}
                   onClick={() => playInColumn(col)}
                 >
-                  {col}
+                  {"⬇"}
                 </button>
               </th>
             ))}
@@ -98,8 +95,12 @@ export const Board = () => {
         <tbody>
           {board.map((row, i) => (
             <tr key={i}>
-              {row.map((cell, j) => (
-                <AnimatedCell key={j}>{cell}</AnimatedCell>
+              {columnIndices.map((col) => (
+                <td key={col}>
+                  <button onClick={() => playInColumn(col)}>
+                    <AnimatedCell>{row[col]}</AnimatedCell>
+                  </button>
+                </td>
               ))}
             </tr>
           ))}
