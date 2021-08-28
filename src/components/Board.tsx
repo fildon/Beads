@@ -1,32 +1,41 @@
 import * as React from "react";
 import { useReanimator } from "ceramic-components";
 import { pickBestMove } from "../ai/ai";
-import { playMove, startingState } from "../gameEngine/gameState";
+import {
+  playMove,
+  createNewGame,
+  toPrettyBoard,
+  getLegalMoves,
+} from "../gameEngine/bitboard";
 
-const getDisplayMessage = (state: State): string => {
-  if (state.phase === "⏹") {
+const getDisplayMessage = (state: GameState): string => {
+  if (state.leafValue === 0) {
     return "It's a tie!";
   }
 
-  if (state.phase === "▶") {
-    return `${state.nextToMove} to play`;
+  if (state.leafValue === null) {
+    return `${state.toPlay ? "🔴" : "🟡"} to play`;
   }
 
-  return `${state.phase} has won!`;
+  return `${state.leafValue > 0 ? "🔴" : "🟡"} has won!`;
 };
 
 const useBoard = () => {
-  const [state, setState] = React.useState(startingState);
+  const [state, setState] = React.useState(createNewGame());
   const playInColumn = React.useCallback(
     (col: ColumnIndex) => {
-      if (state.phase !== "▶" || state.board[0][col] !== "⚫") return;
+      if (
+        state.leafValue !== null ||
+        !getLegalMoves(state.height).includes(col)
+      )
+        return;
       const newState = playMove(state, col);
       setState(newState);
     },
     [state]
   );
 
-  const reset = React.useCallback(() => setState(startingState), []);
+  const reset = React.useCallback(() => setState(createNewGame()), []);
   const displayMessage = getDisplayMessage(state);
 
   const makeBotMove = () => {
@@ -34,12 +43,15 @@ const useBoard = () => {
     playInColumn(bestMove);
   };
 
+  const board = toPrettyBoard(state.bitboard);
+
   return {
     displayMessage,
     playInColumn,
     reset,
     makeBotMove,
     state,
+    board,
   };
 };
 
@@ -68,13 +80,14 @@ export const Board = () => {
     playInColumn,
     reset,
     makeBotMove,
-    state: { phase, board },
+    state: { leafValue },
+    board,
   } = useBoard();
 
   return (
     <>
       <h2>{displayMessage}</h2>
-      <button disabled={phase !== "▶"} onClick={makeBotMove}>
+      <button disabled={leafValue !== null} onClick={makeBotMove}>
         Let the bot decide
       </button>
       <table>
@@ -82,12 +95,7 @@ export const Board = () => {
           <tr>
             {columnIndices.map((col) => (
               <th key={col}>
-                <button
-                  disabled={phase !== "▶" || board[0][col] !== "⚫"}
-                  onClick={() => playInColumn(col)}
-                >
-                  {"⬇"}
-                </button>
+                <button onClick={() => playInColumn(col)}>{"⬇"}</button>
               </th>
             ))}
           </tr>
