@@ -11,4 +11,4 @@ Study the deep lore
 - https://tromp.github.io/
 - http://www.informatik.uni-trier.de/~fernau/DSL0607/Masterthesis-Viergewinnt.pdf
 
-Remove esbuild stuff?
+Bug found: rusty-bot occasionally picks an illegal move?

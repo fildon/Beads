@@ -8,8 +8,9 @@ A connect4 implementation
 ## Getting Started
 
 ```shell
-yarn install
-yarn build
+npm install
+npm run build
+npm run serve
 ```
 
-Then open dist/index.html in any browser
+This will spin up a webpack-dev-server at localhost. Inspect the terminal logs for the exact URL.
