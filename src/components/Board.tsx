@@ -22,25 +22,27 @@ const getDisplayMessage = (state: GameState): string => {
 
 const useBoard = () => {
   const [state, setState] = React.useState(createNewGame());
-  const playInColumn = React.useCallback(
-    (col: ColumnIndex) => {
-      if (
-        state.leafValue !== null ||
-        !getLegalMoves(state.height).includes(col)
-      )
-        return;
-      const newState = playMove(state, col);
-      setState(newState);
-    },
-    [state]
-  );
+  const [loading, setLoading] = React.useState(false);
+  const playInColumn = (col: ColumnIndex) => {
+    if (
+      state.leafValue !== null ||
+      !getLegalMoves(state.height).includes(col) ||
+      loading
+    )
+      return;
+    const newState = playMove(state, col);
+    setState(newState);
+  };
 
-  const reset = React.useCallback(() => setState(createNewGame()), []);
+  const reset = () => loading || setState(createNewGame());
   const displayMessage = getDisplayMessage(state);
 
   const makeBotMove = () => {
-    const bestMove = pickBestMove(state);
-    playInColumn(bestMove);
+    if (loading) return;
+    setLoading(true);
+    pickBestMove(state)
+      .then((bestMove) => playInColumn(bestMove))
+      .finally(() => setLoading(false));
   };
 
   const board = toPrettyBoard(state.bitboard);
@@ -52,6 +54,7 @@ const useBoard = () => {
     makeBotMove,
     state,
     board,
+    loading,
   };
 };
 
@@ -82,20 +85,23 @@ export const Board = () => {
     makeBotMove,
     state: { leafValue },
     board,
+    loading,
   } = useBoard();
 
   return (
     <>
       <h2>{displayMessage}</h2>
-      <button disabled={leafValue !== null} onClick={makeBotMove}>
-        Let the bot decide
+      <button disabled={loading || leafValue !== null} onClick={makeBotMove}>
+        {loading ? "THINKING" : "Let the bot decide"}
       </button>
       <table>
         <thead>
           <tr>
             {columnIndices.map((col) => (
               <th key={col}>
-                <button onClick={() => playInColumn(col)}>{"⬇"}</button>
+                <button disabled={loading} onClick={() => playInColumn(col)}>
+                  {"⬇"}
+                </button>
               </th>
             ))}
           </tr>
@@ -114,7 +120,9 @@ export const Board = () => {
           ))}
         </tbody>
       </table>
-      <button onClick={reset}>New game?</button>
+      <button disabled={loading} onClick={reset}>
+        New game?
+      </button>
     </>
   );
 };
