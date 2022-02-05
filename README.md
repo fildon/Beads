@@ -5,6 +5,8 @@
 
 A connect4 implementation
 
+You can view the currently deployed website here: [Beads](https://fildon.me/Beads/)
+
 ## Getting Started
 
 ```shell
